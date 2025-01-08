@@ -20,4 +20,4 @@ COPY index.html script.js style.css /usr/local/openresty/nginx/html/
 EXPOSE 8080
 
 # 启动 Nginx 服务
-CMD ["openresty", "-g", "daemon off;"]
+# CMD ["openresty", "-g", "daemon off;"]
