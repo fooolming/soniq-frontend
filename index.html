@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soniq - 每日一曲</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+            flex-direction: column;
+        }
+        h1 {
+            color: #333;
+        }
+        .player {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        audio {
+            margin-top: 20px;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="player">
+        <h1>每日一曲</h1>
+        <div id="song-title">加载中...</div>
+        <audio id="audio-player" controls>
+            <source id="audio-source" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+
+    <div class="footer">
+        <div id="host-info">加载主机信息...</div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+
+            // 请求后端接口获取每日一曲信息
+            fetch(`${backendUrl}/api/daily_song`)
+                .then(response => response.json())
+                .then(data => {
+                    const songTitle = data.title;
+                    const audioUrl = data.audio_url;
+
+                    // 更新页面内容
+                    document.getElementById('song-title').textContent = songTitle;
+                    document.getElementById('audio-source').src = audioUrl;
+                    document.getElementById('audio-player').load();
+                })
+                .catch(error => console.error("Error fetching daily song:", error));
+
+            // 请求后端接口获取主机信息
+            fetch(`${backendUrl}/api/host_info`)
+                .then(response => response.json())
+                .then(data => {
+                    const hostInfo = `主机名: ${data.host_name} | IP地址: ${data.host_ip}`;
+                    document.getElementById('host-info').textContent = hostInfo;
+                })
+                .catch(error => console.error("Error fetching host info:", error));
+        });
+    </script>
+</body>
+</html>
