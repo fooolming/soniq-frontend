@@ -42,7 +42,7 @@ async function fetchSongOfTheDay() {
         // songArtist.innerText = data.artist;
 
         // 创建音频对象并设置为返回的音频文件
-        audio = new Audio(data.audioUrl);
+        audio = new Audio(data.audio_url);
 
         // 监听音频进度更新
         audio.addEventListener('timeupdate', updateProgress);
