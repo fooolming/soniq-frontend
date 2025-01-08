@@ -73,7 +73,7 @@ async function fetchBackendInfo() {
         const data = await response.json();
 
         // 更新 UI 显示后端主机信息
-        backendInfo.innerText = `Backend HostIP: ${data.host_ip} | HostName: ${data.host_name}`;
+        backendInfo.innerText = `HostIP: ${data.host_ip}`;
     } catch (error) {
         console.error('Error fetching backend host info:', error);
         backendInfo.innerText = 'Unable to fetch backend information.';

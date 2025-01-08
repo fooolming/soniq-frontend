@@ -7,23 +7,72 @@
 
 /* Body */
 body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(to right, #00c6ff, #0072ff);
-    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(135deg, #1C1C1E, #2C2C2E), url('https://source.unsplash.com/1600x900/?music,abstract') no-repeat center center/cover;
+    background-blend-mode: multiply;
+    color: #F5F5F7;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    padding: 20px;
 }
 
 /* Container */
 .container {
     text-align: center;
-    max-width: 600px;
-    width: 100%;
-    padding: 20px;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 15px;
+    max-width: 1200px;
+    width: 90%;
+    padding: 30px;
+    background: rgba(28, 28, 30, 0.9);
+    border-radius: 20px;
+    margin: 20px auto;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Layout */
+@media (max-width: 1000px) {
+    .container {
+        width: 95%;
+        padding: 15px;
+    }
+    
+    .song-cover {
+        width: 250px;
+        height: 250px;
+    }
+    
+    .play-btn {
+        width: 100%;
+        padding: 12px;
+    }
+    
+    .progress-bar {
+        width: 90%;
+    }
+}
+
+@media (min-width: 1024px) and (max-width: 1280px) {
+    .container {
+        max-width: 800px;
+    }
+    
+    .song-cover {
+        width: 250px;
+        height: 250px;
+    }
+}
+
+@media (min-width: 1025px) {
+    .container {
+        max-width: 800px;
+    }
+    
+    .song-cover {
+        width: 300px;
+        height: 300px;
+    }
 }
 
 /* Header */
@@ -31,7 +80,7 @@ body {
     font-size: 2.5em;
     margin-bottom: 20px;
     font-weight: bold;
-    color: #fff;
+    color: #F5F5F7;
 }
 
 /* Main content */
@@ -62,7 +111,7 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    color: #fff;
+    color: #F5F5F7;
 }
 
 .song-details h2 {
@@ -72,7 +121,7 @@ body {
 
 .song-details p {
     font-size: 1.1em;
-    color: #ddd;
+    color: #AEAEB2;
 }
 
 /* Player Controls */
@@ -83,24 +132,26 @@ body {
 }
 
 .play-btn {
-    background-color: #0072ff;
-    color: #fff;
+    background-color: rgba(255, 45, 85, 0.9);
+    color: #F5F5F7;
     border: none;
     padding: 15px 30px;
     font-size: 1.2em;
     cursor: pointer;
-    border-radius: 30px;
-    transition: background-color 0.3s;
+    border-radius: 12px;
+    transition: all 0.2s ease;
 }
 
 .play-btn:hover {
-    background-color: #00c6ff;
+    background-color: rgba(255, 55, 95, 1);
+    transform: scale(1.02);
+    box-shadow: 0 4px 16px rgba(255, 45, 85, 0.3);
 }
 
 .progress-bar {
     width: 100%;
     max-width: 400px;
-    background: #444;
+    background: rgba(255, 255, 255, 0.1);
     height: 10px;
     border-radius: 10px;
     appearance: none;
@@ -110,14 +161,14 @@ body {
     -webkit-appearance: none;
     width: 15px;
     height: 15px;
-    background-color: #0072ff;
+    background-color: #FF2D55;
     border-radius: 50%;
 }
 
 .progress-bar::-moz-range-thumb {
     width: 15px;
     height: 15px;
-    background-color: #0072ff;
+    background-color: #FF2D55;
     border-radius: 50%;
 }
 
@@ -125,5 +176,5 @@ body {
 .footer {
     margin-top: 20px;
     font-size: 1.1em;
-    color: #fff;
+    color: #AEAEB2;
 }
