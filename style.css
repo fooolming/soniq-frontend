@@ -8,7 +8,7 @@
 /* Body */
 body {
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    background: linear-gradient(135deg, #1C1C1E, #2C2C2E), url('https://source.unsplash.com/1600x900/?music,abstract') no-repeat center center/cover;
+    background: linear-gradient(135deg, #1C1C1E, #2C2C2E);
     background-blend-mode: multiply;
     color: #F5F5F7;
     display: flex;

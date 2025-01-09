@@ -34,7 +34,7 @@ function updateProgress() {
 async function fetchSongOfTheDay() {
     try {
         // 向后端发送 GET 请求，获取每日歌曲信息
-        const response = await fetch(`${backendUrl}/api/daily_song`);
+        const response = await fetch(`/api/daily_song`);
         const data = await response.json();
 
         // 更新 UI 显示歌曲信息
@@ -69,7 +69,7 @@ async function fetchSongOfTheDay() {
 async function fetchBackendInfo() {
     try {
         // 向后端发送 GET 请求，获取主机信息
-        const response = await fetch(`${backendUrl}/api/host_info`);
+        const response = await fetch(`/api/host_info`);
         const data = await response.json();
 
         // 更新 UI 显示后端主机信息
