@@ -1,87 +1,165 @@
-// 获取页面元素
-const playButton = document.getElementById('play-button');
-const progressBar = document.getElementById('progress-bar');
-const songTitle = document.getElementById('song-title');
-const songArtist = document.getElementById('song-artist');
-const backendInfo = document.getElementById('backend-info'); // 用于显示后端主机信息
+class AudioPlayer {
+    constructor() {
+        this.audio = null;
+        this.playButton = document.getElementById('play-button');
+        this.progressBar = document.getElementById('progress-bar');
+        this.initEventListeners();
+    }
 
-// 初始化音频变量
-let audio = null;
+    initEventListeners() {
+        this.playButton.addEventListener('click', () => this.togglePlayback());
+        this.setupProgressBar();
+    }
 
-// 播放按钮事件处理
-playButton.addEventListener('click', () => {
-    if (playButton.innerText === 'Play') {
-        if (audio) {
-            audio.play();
-            playButton.innerText = 'Pause';
-        }
-    } else {
-        if (audio) {
-            audio.pause();
-            playButton.innerText = 'Play';
+    togglePlayback() {
+        if (!this.audio) return;
+
+        if (this.audio.paused) {
+            this.audio.play();
+            this.playButton.innerText = 'Pause';
+        } else {
+            this.audio.pause();
+            this.playButton.innerText = 'Play';
         }
     }
-});
 
-// 更新进度条的值
-function updateProgress() {
-    if (audio && audio.duration) {
-        progressBar.value = (audio.currentTime / audio.duration) * 100;
-    }
-}
+    setupProgressBar() {
+        let isDragging = false;
+        let wasPlayingBeforeDrag = false;
 
-// 从后端获取“每日歌曲”的数据
-async function fetchSongOfTheDay() {
-    try {
-        // 向后端发送 GET 请求，获取每日歌曲信息
-        const response = await fetch(`/api/daily_song`);
-        const data = await response.json();
+        const handleDragStart = () => {
+            wasPlayingBeforeDrag = !this.audio.paused;
+            if (!this.audio.paused) this.audio.pause();
+            isDragging = true;
+        };
 
-        // 更新 UI 显示歌曲信息
-        songTitle.innerText = data.title;
-        // songArtist.innerText = data.artist;
+        const handleDragEnd = () => {
+            if (this.audio && !isNaN(this.audio.duration)) {
+                const seekTime = (this.progressBar.value / 100) * this.audio.duration;
+                // console.log('Seeking to:', seekTime);
+                try {
+                    this.audio.currentTime = seekTime;
+                    if (wasPlayingBeforeDrag) {
+                        this.audio.play().catch(error => {
+                            console.error('Error resuming playback:', error);
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error seeking audio:', error);
+                }
+            }
+            isDragging = false;
+            wasPlayingBeforeDrag = false;
+        };
 
-        // 创建音频对象并设置为返回的音频文件
-        audio = new Audio(data.audio_url);
-
-        // 监听音频进度更新
-        audio.addEventListener('timeupdate', updateProgress);
-
-        // 当音频准备好后，更新播放按钮文本
-        audio.addEventListener('canplaythrough', () => {
-            playButton.innerText = 'Play';
+        this.progressBar.addEventListener('mousedown', handleDragStart);
+        this.progressBar.addEventListener('mouseup', handleDragEnd);
+        this.progressBar.addEventListener('input', () => {
+            if (isDragging && this.audio && !isNaN(this.audio.duration)) {
+                const seekTime = (this.progressBar.value / 100) * this.audio.duration;
+                // console.log('Dragging to:', seekTime);
+                this.audio.currentTime = seekTime;
+            }
         });
 
-        // 设置音频播放完毕时的事件（可选：循环播放或处理音频结束等）
-        audio.addEventListener('ended', () => {
-            playButton.innerText = 'Play'; // 播放结束后恢复按钮文本
-            progressBar.value = 0; // 进度条归零
+        if (this.audio) {
+            this.audio.addEventListener('timeupdate', () => this.updateProgress());
+        }
+    }
+
+    updateProgress() {
+        if (this.audio && this.audio.duration) {
+            this.progressBar.value = (this.audio.currentTime / this.audio.duration) * 100;
+        }
+    }
+
+    init(audioUrl) {
+        this.audio = new Audio(audioUrl);
+        this.audio.addEventListener('canplaythrough', () => {
+            this.playButton.innerText = 'Play';
+            console.log('Audio ready to play');
         });
-
-    } catch (error) {
-        console.error('Error fetching song of the day:', error);
-        songTitle.innerText = 'Error fetching song';
-        // songArtist.innerText = 'Please try again later';
+        this.audio.addEventListener('ended', () => {
+            this.playButton.innerText = 'Play';
+            this.progressBar.value = 0;
+            console.log('Audio ended');
+        });
+        this.setupProgressBar();
     }
 }
 
-// 从后端获取主机信息
-async function fetchBackendInfo() {
-    try {
-        // 向后端发送 GET 请求，获取主机信息
-        const response = await fetch(`/api/host_info`);
-        const data = await response.json();
+// 初始化音频播放器
+const audioPlayer = new AudioPlayer();
 
-        // 更新 UI 显示后端主机信息
-        backendInfo.innerText = `HostIP: ${data.host_ip}`;
-    } catch (error) {
-        console.error('Error fetching backend host info:', error);
-        backendInfo.innerText = 'Unable to fetch backend information.';
+class LyricsManager {
+    constructor() {
+        this.lyricsContent = document.getElementById('lyrics-content');
+    }
+
+    async fetch(songId) {
+        try {
+            const response = await fetch(`/api/lyrics?song_id=${songId}`);
+            const data = await response.json();
+            this.lyricsContent.innerHTML = `<pre>${data.lyrics}</pre>`;
+        } catch (error) {
+            console.error('Error fetching lyrics:', error);
+            this.lyricsContent.innerHTML = '<pre>Failed to load lyrics</pre>';
+        }
     }
 }
+
+class SongManager {
+    constructor() {
+        this.songTitle = document.getElementById('song-title');
+        this.lyricsManager = new LyricsManager();
+    }
+
+    async fetchDailySong() {
+        try {
+            const response = await fetch(`/api/daily_song`);
+            const data = await response.json();
+
+            // 更新 UI 显示歌曲信息
+            this.songTitle.innerText = data.title;
+            
+            // 获取歌词
+            if (data.song_id) {
+                await this.lyricsManager.fetch(data.song_id);
+            }
+
+            // 初始化音频
+            audioPlayer.init(data.audio_url);
+
+        } catch (error) {
+            console.error('Error fetching song of the day:', error);
+            this.songTitle.innerText = 'Error fetching song';
+        }
+    }
+}
+
+class BackendInfoManager {
+    constructor() {
+        this.backendInfo = document.getElementById('backend-info');
+    }
+
+    async fetch() {
+        try {
+            const response = await fetch(`/api/host_info`);
+            const data = await response.json();
+            this.backendInfo.innerText = `HostIP: ${data.host_ip}`;
+        } catch (error) {
+            console.error('Error fetching backend host info:', error);
+            this.backendInfo.innerText = 'Unable to fetch backend information.';
+        }
+    }
+}
+
+// 初始化管理器
+const songManager = new SongManager();
+const backendInfoManager = new BackendInfoManager();
 
 // 在页面加载时获取每日歌曲和主机信息
 window.onload = async () => {
-    await fetchSongOfTheDay();
-    await fetchBackendInfo();
+    await songManager.fetchDailySong();
+    await backendInfoManager.fetch();
 };
